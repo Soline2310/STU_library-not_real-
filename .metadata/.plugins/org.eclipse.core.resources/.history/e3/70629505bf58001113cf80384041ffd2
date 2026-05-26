@@ -1,0 +1,13 @@
+package util;
+
+import javax.persistence.EntityManagerFactory;
+
+public class HibernateUtil {
+	private static EntityManagerFactory emf;
+	public static EntityManagerFactory getEntityManagerFactory() {
+		if(emf==null) {
+			
+			return emf;
+		}
+	}
+}

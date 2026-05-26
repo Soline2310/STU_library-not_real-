@@ -1,0 +1,42 @@
+package entity;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "NHA_XUAT_BAN")
+public class NhaXuatBan {
+
+    @Id
+    @Column(name = "MaNXB", length = 20)
+    private String maNXB;
+
+    @Column(name = "TenNXB", nullable = false, length = 100)
+    private String tenNXB;
+
+    @Column(name = "DiaChi", length = 200)
+    private String diaChi;
+
+    @Column(name = "SDT", length = 15)
+    private String sdt;
+
+    public NhaXuatBan() {}
+
+    public NhaXuatBan(String maNXB, String tenNXB, String diaChi, String sdt) {
+        this.maNXB = maNXB;
+        this.tenNXB = tenNXB;
+        this.diaChi = diaChi;
+        this.sdt = sdt;
+    }
+
+    public String getMaNXB()            { return maNXB; }
+    public void setMaNXB(String v)      { this.maNXB = v; }
+    public String getTenNXB()           { return tenNXB; }
+    public void setTenNXB(String v)     { this.tenNXB = v; }
+    public String getDiaChi()           { return diaChi; }
+    public void setDiaChi(String v)     { this.diaChi = v; }
+    public String getSdt()              { return sdt; }
+    public void setSdt(String v)        { this.sdt = v; }
+
+    @Override
+    public String toString() { return tenNXB; } // for JComboBox display
+}

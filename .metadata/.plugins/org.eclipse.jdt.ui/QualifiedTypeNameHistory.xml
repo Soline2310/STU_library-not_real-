@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="javax.persistence.EntityManagerFactory"/>
+    <fullyQualifiedTypeName name="javax.swing.JButton"/>
+    <fullyQualifiedTypeName name="javax.persistence.Entity"/>
+    <fullyQualifiedTypeName name="javax.persistence.Table"/>
+    <fullyQualifiedTypeName name="dao.JPAUtil"/>
+    <fullyQualifiedTypeName name="javax.persistence.EntityManager"/>
+    <fullyQualifiedTypeName name="javax.persistence.metamodel.Type.PersistenceType"/>
+    <fullyQualifiedTypeName name="javax.persistence.PersistenceContextType"/>
+    <fullyQualifiedTypeName name="javax.persistence.spi.PersistenceUnitTransactionType"/>
+    <fullyQualifiedTypeName name="service.ThuThuService"/>
+    <fullyQualifiedTypeName name="entity.ThuThu"/>
+    <fullyQualifiedTypeName name="service.TacGiaService"/>
+    <fullyQualifiedTypeName name="service.NhaXuatBanService"/>
+    <fullyQualifiedTypeName name="entity.Sach"/>
+    <fullyQualifiedTypeName name="entity.NhaXuatBan"/>
+    <fullyQualifiedTypeName name="javax.swing.JTextField"/>
+    <fullyQualifiedTypeName name="java.lang.String"/>
+    <fullyQualifiedTypeName name="service.SachService"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+</qualifiedTypeNameHistroy>

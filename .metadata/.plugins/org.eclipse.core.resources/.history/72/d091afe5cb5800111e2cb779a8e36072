@@ -1,0 +1,80 @@
+package service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.StoredProcedureQuery;
+
+import dao.JPAUtil;
+import entity.PhieuMuon;
+
+public class PhieuMuonService {
+
+    /** Get all phieu muon */
+    public List<PhieuMuon> getAll() {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery("SELECT p FROM PhieuMuon p", PhieuMuon.class).getResultList();
+        } finally { em.close(); }
+    }
+
+    /**
+     * Lập phiếu mượn — calls stored procedure sp_LapPhieuMuon.
+     * The DB trigger (trg_MuonSach) automatically decreases SoLuong.
+     * The SP enforces max 3 books per reader.
+     */
+    public void lapPhieuMuon(String maPhieu, String maDocGia, String maSach,
+                              LocalDate ngayMuon, LocalDate hanTra) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            StoredProcedureQuery sp = em.createStoredProcedureQuery("sp_LapPhieuMuon");
+            sp.registerStoredProcedureParameter("p_MaPhieu",  String.class,    jakarta.persistence.ParameterMode.IN);
+            sp.registerStoredProcedureParameter("p_MaDocGia", String.class,    jakarta.persistence.ParameterMode.IN);
+            sp.registerStoredProcedureParameter("p_MaSach",   String.class,    jakarta.persistence.ParameterMode.IN);
+            sp.registerStoredProcedureParameter("p_NgayMuon", java.sql.Date.class, jakarta.persistence.ParameterMode.IN);
+            sp.registerStoredProcedureParameter("p_HanTra",   java.sql.Date.class, jakarta.persistence.ParameterMode.IN);
+            sp.setParameter("p_MaPhieu",  maPhieu);
+            sp.setParameter("p_MaDocGia", maDocGia);
+            sp.setParameter("p_MaSach",   maSach);
+            sp.setParameter("p_NgayMuon", java.sql.Date.valueOf(ngayMuon));
+            sp.setParameter("p_HanTra",   java.sql.Date.valueOf(hanTra));
+            sp.execute();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;   // let the UI catch and show the DB error message
+        } finally { em.close(); }
+    }
+
+    /**
+     * Trả sách — calls stored procedure sp_TraSach.
+     * The DB trigger (trg_TraSach) automatically increases SoLuong.
+     */
+    public void traSach(String maPhieu) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            StoredProcedureQuery sp = em.createStoredProcedureQuery("sp_TraSach");
+            sp.registerStoredProcedureParameter("p_MaPhieu", String.class, jakarta.persistence.ParameterMode.IN);
+            sp.setParameter("p_MaPhieu", maPhieu);
+            sp.execute();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally { em.close(); }
+    }
+
+    /** Get phieu muon filtered by trang thai */
+    public List<PhieuMuon> getByTrangThai(String trangThai) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery(
+                "SELECT p FROM PhieuMuon p WHERE p.trangThai = :tt", PhieuMuon.class)
+                .setParameter("tt", trangThai)
+                .getResultList();
+        } finally { em.close(); }
+    }
+}

@@ -1,0 +1,30 @@
+package UI;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class UIHelper {
+    // Hàm tạo ô nhập liệu nhanh
+    public static void addField(JPanel p, String lbl, JTextField tf, int x, int y, GridBagConstraints gbc) {
+        gbc.gridx = x; gbc.gridy = y; gbc.weightx = 0; p.add(new JLabel(lbl), gbc);
+        gbc.gridx = x + 1; gbc.weightx = 1.0; p.add(tf, gbc);
+    }
+    
+    // Hàm tạo thanh nút bấm chức năng (Thêm, Sửa, Xóa...) và ô Tìm kiếm nhanh
+    public static void addButtonsAndSearch(JPanel p, GridBagConstraints gbc, JTextField txtTim) {
+        GridBagConstraints gbcBtn = (GridBagConstraints) gbc.clone();
+        gbcBtn.gridx = 0; gbcBtn.gridy = 5; gbcBtn.gridwidth = 4; gbcBtn.insets = new Insets(15, 5, 5, 5);
+        JPanel pBtn = new JPanel(new GridLayout(1, 4, 15, 0));
+        pBtn.add(new JButton("Thêm")); pBtn.add(new JButton("Cập Nhật"));
+        pBtn.add(new JButton("Xóa")); pBtn.add(new JButton("Làm Mới"));
+        p.add(pBtn, gbcBtn);
+        
+        GridBagConstraints gbcSearch = (GridBagConstraints) gbc.clone();
+        gbcSearch.gridx = 0; gbcSearch.gridy = 6; gbcSearch.gridwidth = 1; gbcSearch.weightx = 0;
+        p.add(new JLabel("Tìm kiếm:"), gbcSearch);
+        gbcSearch.gridx = 1; gbcSearch.gridwidth = 3; gbcSearch.weightx = 1.0;
+        JPanel pSearch = new JPanel(new BorderLayout(5, 0));
+        pSearch.add(txtTim, BorderLayout.CENTER); pSearch.add(new JButton("Tìm"), BorderLayout.EAST);
+        p.add(pSearch, gbcSearch);
+    }
+}

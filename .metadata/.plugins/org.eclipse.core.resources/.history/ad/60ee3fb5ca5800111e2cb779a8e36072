@@ -1,0 +1,25 @@
+package dao;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
+/**
+ * Singleton helper — call JPAUtil.getEM() anywhere to get an EntityManager.
+ * Call JPAUtil.close() when the app shuts down.
+ */
+public class JPAUtil {
+
+    private static final EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("QuanLyThuVienPU");
+
+    private JPAUtil() {}
+
+    public static EntityManager getEM() {
+        return emf.createEntityManager();
+    }
+
+    public static void close() {
+        if (emf != null && emf.isOpen()) emf.close();
+    }
+}

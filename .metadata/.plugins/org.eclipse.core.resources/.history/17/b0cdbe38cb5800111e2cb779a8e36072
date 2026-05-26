@@ -1,0 +1,42 @@
+package entity;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "TAC_GIA")
+public class TacGia {
+
+    @Id
+    @Column(name = "MaTacGia", length = 20)
+    private String maTacGia;
+
+    @Column(name = "TenTacGia", nullable = false, length = 100)
+    private String tenTacGia;
+
+    @Column(name = "NamSinh")
+    private Integer namSinh;
+
+    @Column(name = "QuocTich", length = 50)
+    private String quocTich;
+
+    public TacGia() {}
+
+    public TacGia(String maTacGia, String tenTacGia, Integer namSinh, String quocTich) {
+        this.maTacGia = maTacGia;
+        this.tenTacGia = tenTacGia;
+        this.namSinh = namSinh;
+        this.quocTich = quocTich;
+    }
+
+    public String getMaTacGia()             { return maTacGia; }
+    public void setMaTacGia(String v)       { this.maTacGia = v; }
+    public String getTenTacGia()            { return tenTacGia; }
+    public void setTenTacGia(String v)      { this.tenTacGia = v; }
+    public Integer getNamSinh()             { return namSinh; }
+    public void setNamSinh(Integer v)       { this.namSinh = v; }
+    public String getQuocTich()             { return quocTich; }
+    public void setQuocTich(String v)       { this.quocTich = v; }
+
+    @Override
+    public String toString() { return tenTacGia; } // for JComboBox display
+}

@@ -1,0 +1,62 @@
+package entity;
+
+import java.time.LocalDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "PHIEU_MUON")
+public class PhieuMuon {
+
+    @Id
+    @Column(name = "MaPhieu", length = 20)
+    private String maPhieu;
+
+    @ManyToOne
+    @JoinColumn(name = "MaDocGia", referencedColumnName = "MaDocGia")
+    private DocGia docGia;
+
+    @ManyToOne
+    @JoinColumn(name = "MaSach", referencedColumnName = "MaSach")
+    private Sach sach;
+
+    @Column(name = "NgayMuon")
+    private LocalDate ngayMuon;
+
+    @Column(name = "HanTra")
+    private LocalDate hanTra;
+
+    // Values: "Đang mượn" | "Đã trả" | "Quá hạn"
+    @Column(name = "TrangThai", length = 50)
+    private String trangThai = "Đang mượn";
+
+    public PhieuMuon() {}
+
+    public PhieuMuon(String maPhieu, DocGia docGia, Sach sach,
+                     LocalDate ngayMuon, LocalDate hanTra, String trangThai) {
+        this.maPhieu = maPhieu;
+        this.docGia = docGia;
+        this.sach = sach;
+        this.ngayMuon = ngayMuon;
+        this.hanTra = hanTra;
+        this.trangThai = trangThai;
+    }
+
+    public String getMaPhieu()          { return maPhieu; }
+    public void setMaPhieu(String v)    { this.maPhieu = v; }
+    public DocGia getDocGia()           { return docGia; }
+    public void setDocGia(DocGia v)     { this.docGia = v; }
+    public Sach getSach()               { return sach; }
+    public void setSach(Sach v)         { this.sach = v; }
+    public LocalDate getNgayMuon()      { return ngayMuon; }
+    public void setNgayMuon(LocalDate v){ this.ngayMuon = v; }
+    public LocalDate getHanTra()        { return hanTra; }
+    public void setHanTra(LocalDate v)  { this.hanTra = v; }
+    public String getTrangThai()        { return trangThai; }
+    public void setTrangThai(String v)  { this.trangThai = v; }
+}

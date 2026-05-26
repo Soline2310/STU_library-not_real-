@@ -1,0 +1,87 @@
+package UI;
+
+import javax.swing.*;
+import java.awt.*;
+import javax.swing.border.EmptyBorder;
+
+public class index extends JFrame {
+    private JPanel panel_Main;
+    private CardLayout cardLayout;
+    public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            new DangNhap().setVisible(true);
+        });
+    }
+    public index() {
+        setTitle("Quản Lý Thư Viện STU");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1100, 650);
+        
+        JPanel contentPane = new JPanel(new BorderLayout(5, 5));
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(contentPane);
+
+        JPanel panel_Title = new JPanel(new GridBagLayout());
+        panel_Title.setBackground(new Color(51, 51, 51));
+        panel_Title.setPreferredSize(new Dimension(100, 60));
+        
+        JLabel lblTitle = new JLabel("Quản Lý Thư Viện STU");
+        lblTitle.setFont(new Font("Tahoma", Font.BOLD, 30));
+        lblTitle.setForeground(Color.WHITE);
+        panel_Title.add(lblTitle);
+        contentPane.add(panel_Title, BorderLayout.NORTH);
+
+        cardLayout = new CardLayout();
+        panel_Main = new JPanel(cardLayout);
+        contentPane.add(panel_Main, BorderLayout.CENTER);
+
+        panel_Main.add(new TrangChuPanel(), "Trang Chủ");
+        panel_Main.add(new SachPanel(), "Sách");
+        panel_Main.add(new TacGiaPanel(), "Tác Giả");
+        panel_Main.add(new DocGiaPanel(), "Đọc Giả");
+        panel_Main.add(new NhaXuatBanPanel(), "Nhà Xuất Bản");
+        panel_Main.add(new ThuThuPanel(), "Thủ Thư");
+        panel_Main.add(new PhieuMuonPanel(), "Phiếu Mượn");
+        panel_Main.add(new PhieuNhapPanel(), "Phiếu Nhập");
+        panel_Main.add(new ThongKePanel(), "Thống Kê");
+        panel_Main.add(new ChungPanel(), "Chung");
+
+        JPanel panel_Menu = new JPanel(new GridLayout(11, 1, 0, 2));
+        panel_Menu.setBackground(Color.BLACK);
+        panel_Menu.setPreferredSize(new Dimension(160, 100));
+        contentPane.add(panel_Menu, BorderLayout.WEST);
+
+        String[] menuItems = {"Trang Chủ", "Sách", "Tác Giả", "Đọc Giả", "Nhà Xuất Bản", 
+                              "Thủ Thư", "Phiếu Mượn", "Phiếu Nhập", "Thống Kê", "Chung", "Đăng Xuất"};
+
+        for (String s : menuItems) {
+            
+            if (!Auth.isAdmin()) {
+                if (s.equals("Thủ Thư") || s.equals("Chung") || s.equals("Thống Kê")) {
+                    continue; 
+                }
+            }
+
+            JButton btn = new JButton("  " + s);
+            btn.setBackground(new Color(51, 51, 51));
+            btn.setForeground(Color.WHITE);
+            btn.setFont(new Font("Tahoma", Font.BOLD, 14));
+            btn.setBorderPainted(false);
+            btn.setFocusPainted(false);
+            btn.setHorizontalAlignment(SwingConstants.LEFT);
+            panel_Menu.add(btn);
+
+            btn.addActionListener(e -> {
+                if (s.equals("Đăng Xuất")) {
+                    Auth.clear();
+                    new DangNhap().setVisible(true);
+                    this.dispose(); 
+                } else {
+                    cardLayout.show(panel_Main, s);
+                }
+            });
+            
+        }
+        
+    }
+}
