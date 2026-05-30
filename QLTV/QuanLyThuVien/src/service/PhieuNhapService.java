@@ -1,55 +1,66 @@
 package service;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
-import dao.JPAUtil;
 import entity.PhieuNhap;
+import javax.persistence.*;
+import java.util.List;
 
 public class PhieuNhapService {
 
     public List<PhieuNhap> getAll() {
         EntityManager em = JPAUtil.getEM();
         try {
-            return em.createQuery("SELECT x FROM PhieuNhap x", PhieuNhap.class).getResultList();
+            return em.createQuery(
+                    "SELECT p FROM PhieuNhap p LEFT JOIN FETCH p.sach ORDER BY p.maPhieuNhap",
+                    PhieuNhap.class).getResultList();
         } finally { em.close(); }
     }
 
-    public PhieuNhap findById(String id) {
+    public PhieuNhap findById(String maPhieuNhap) {
         EntityManager em = JPAUtil.getEM();
-        try { return em.find(PhieuNhap.class, id); }
+        try { return em.find(PhieuNhap.class, maPhieuNhap); }
         finally { em.close(); }
     }
 
-    public void add(PhieuNhap obj) {
+    public void add(PhieuNhap p) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.persist(obj);
+            em.persist(p);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
     }
 
-    public void update(PhieuNhap obj) {
+    public void update(PhieuNhap p) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.merge(obj);
+            em.merge(p);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
     }
 
-    public void delete(String id) {
+    public void delete(String maPhieuNhap) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            PhieuNhap obj = em.find(PhieuNhap.class, id);
-            if (obj != null) em.remove(obj);
+            PhieuNhap p = em.find(PhieuNhap.class, maPhieuNhap);
+            if (p != null) em.remove(p);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
+    }
+
+    public List<PhieuNhap> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT p FROM PhieuNhap p LEFT JOIN FETCH p.sach " +
+                    "WHERE p.maPhieuNhap LIKE :kw OR p.sach.maSach LIKE :kw " +
+                    "OR p.nhaCungCap LIKE :kw OR p.tinhTrang LIKE :kw",
+                    PhieuNhap.class).setParameter("kw", kw).getResultList();
+        } finally { em.close(); }
     }
 }

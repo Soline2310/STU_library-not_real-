@@ -1,13 +1,7 @@
 package entity;
 
+import javax.persistence.*;
 import java.time.LocalDate;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "PHIEU_MUON")
@@ -17,12 +11,12 @@ public class PhieuMuon {
     @Column(name = "MaPhieu", length = 20)
     private String maPhieu;
 
-    @ManyToOne
-    @JoinColumn(name = "MaDocGia", referencedColumnName = "MaDocGia")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MaDocGia")
     private DocGia docGia;
 
-    @ManyToOne
-    @JoinColumn(name = "MaSach", referencedColumnName = "MaSach")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MaSach")
     private Sach sach;
 
     @Column(name = "NgayMuon")
@@ -31,7 +25,6 @@ public class PhieuMuon {
     @Column(name = "HanTra")
     private LocalDate hanTra;
 
-    // Values: "Đang mượn" | "Đã trả" | "Quá hạn"
     @Column(name = "TrangThai", length = 50)
     private String trangThai = "Đang mượn";
 
@@ -47,16 +40,20 @@ public class PhieuMuon {
         this.trangThai = trangThai;
     }
 
-    public String getMaPhieu()          { return maPhieu; }
-    public void setMaPhieu(String v)    { this.maPhieu = v; }
-    public DocGia getDocGia()           { return docGia; }
-    public void setDocGia(DocGia v)     { this.docGia = v; }
-    public Sach getSach()               { return sach; }
-    public void setSach(Sach v)         { this.sach = v; }
-    public LocalDate getNgayMuon()      { return ngayMuon; }
-    public void setNgayMuon(LocalDate v){ this.ngayMuon = v; }
-    public LocalDate getHanTra()        { return hanTra; }
-    public void setHanTra(LocalDate v)  { this.hanTra = v; }
-    public String getTrangThai()        { return trangThai; }
-    public void setTrangThai(String v)  { this.trangThai = v; }
+    public String    getMaPhieu()              { return maPhieu; }
+    public void      setMaPhieu(String v)      { this.maPhieu = v; }
+    public DocGia    getDocGia()               { return docGia; }
+    public void      setDocGia(DocGia v)       { this.docGia = v; }
+    public Sach      getSach()                 { return sach; }
+    public void      setSach(Sach v)           { this.sach = v; }
+    public LocalDate getNgayMuon()             { return ngayMuon; }
+    public void      setNgayMuon(LocalDate v)  { this.ngayMuon = v; }
+    public LocalDate getHanTra()               { return hanTra; }
+    public void      setHanTra(LocalDate v)    { this.hanTra = v; }
+    public String    getTrangThai()            { return trangThai; }
+    public void      setTrangThai(String v)    { this.trangThai = v; }
+
+    /** Convenience getters for table display */
+    public String getMaDocGia() { return docGia != null ? docGia.getMaDocGia() : ""; }
+    public String getMaSach()   { return sach   != null ? sach.getMaSach()     : ""; }
 }

@@ -1,0 +1,77 @@
+package service;
+
+import entity.DocGia;
+import javax.persistence.*;
+import java.util.List;
+
+public class DocGiaService {
+
+    public List<DocGia> getAll() {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery("SELECT d FROM DocGia d ORDER BY d.maDocGia", DocGia.class)
+                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void add(DocGia d) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.persist(d);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void update(DocGia d) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.merge(d);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void delete(String maDocGia) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            DocGia d = em.find(DocGia.class, maDocGia);
+            if (d != null) em.remove(d);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /** Search by name, phone, email or address */
+    public List<DocGia> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT d FROM DocGia d WHERE d.tenDocGia LIKE :kw OR d.sDT LIKE :kw " +
+                    "OR d.email LIKE :kw OR d.diaChi LIKE :kw",
+                    DocGia.class)
+                    .setParameter("kw", kw)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+}

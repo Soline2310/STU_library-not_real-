@@ -1,9 +1,6 @@
 package entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "TAC_GIA")
@@ -31,15 +28,12 @@ public class TacGia {
         this.quocTich = quocTich;
     }
 
-    public String getMaTacGia()             { return maTacGia; }
-    public void setMaTacGia(String v)       { this.maTacGia = v; }
-    public String getTenTacGia()            { return tenTacGia; }
-    public void setTenTacGia(String v)      { this.tenTacGia = v; }
-    public Integer getNamSinh()             { return namSinh; }
-    public void setNamSinh(Integer v)       { this.namSinh = v; }
-    public String getQuocTich()             { return quocTich; }
-    public void setQuocTich(String v)       { this.quocTich = v; }
-
-    @Override
-    public String toString() { return tenTacGia; } // for JComboBox display
+    public String getMaTacGia()            { return maTacGia; }
+    public void   setMaTacGia(String v)    { this.maTacGia = v; }
+    public String getTenTacGia()           { return tenTacGia; }
+    public void   setTenTacGia(String v)   { this.tenTacGia = v; }
+    public Integer getNamSinh()            { return namSinh; }
+    public void   setNamSinh(Integer v)    { this.namSinh = v; }
+    public String getQuocTich()            { return quocTich; }
+    public void   setQuocTich(String v)    { this.quocTich = v; }
 }

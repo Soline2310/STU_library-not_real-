@@ -1,55 +1,71 @@
 package service;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
-import dao.JPAUtil;
 import entity.DocGia;
+import javax.persistence.*;
+import java.util.List;
 
 public class DocGiaService {
 
     public List<DocGia> getAll() {
         EntityManager em = JPAUtil.getEM();
         try {
-            return em.createQuery("SELECT x FROM DocGia x", DocGia.class).getResultList();
+            return em.createQuery("SELECT d FROM DocGia d ORDER BY d.maDocGia", DocGia.class)
+                     .getResultList();
         } finally { em.close(); }
     }
 
-    public DocGia findById(String id) {
-        EntityManager em = JPAUtil.getEM();
-        try { return em.find(DocGia.class, id); }
-        finally { em.close(); }
-    }
-
-    public void add(DocGia obj) {
+    public void add(DocGia d) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.persist(obj);
+            em.persist(d);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
     }
 
-    public void update(DocGia obj) {
+    public void update(DocGia d) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.merge(obj);
+            em.merge(d);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
     }
 
-    public void delete(String id) {
+    public void delete(String maDocGia) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            DocGia obj = em.find(DocGia.class, id);
-            if (obj != null) em.remove(obj);
+            DocGia d = em.find(DocGia.class, maDocGia);
+            if (d != null) em.remove(d);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
+    }
+
+    public List<DocGia> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT d FROM DocGia d WHERE d.tenDocGia LIKE :kw OR d.sDT LIKE :kw " +
+                    "OR d.email LIKE :kw OR d.diaChi LIKE :kw",
+                    DocGia.class).setParameter("kw", kw).getResultList();
+        } finally { em.close(); }
+    }
+
+    /** Returns true if this reader has any borrow slip with status Đang mượn or Quá hạn */
+    public boolean coPhieuMuonDangMuon(String maDocGia) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            Long count = em.createQuery(
+                    "SELECT COUNT(p) FROM PhieuMuon p WHERE p.docGia.maDocGia = :ma " +
+                    "AND p.trangThai IN ('Đang mượn', 'Quá hạn')", Long.class)
+                    .setParameter("ma", maDocGia)
+                    .getSingleResult();
+            return count > 0;
+        } finally { em.close(); }
     }
 }

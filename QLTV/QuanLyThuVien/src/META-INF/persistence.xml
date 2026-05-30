@@ -14,6 +14,7 @@
 		<class>entity.ThuThu</class>
 		<class>entity.PhieuMuon</class>
 		<class>entity.PhieuNhap</class>
+		<class>entity.CaiDatChung</class>
 		<properties>
 			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/quanlythuvienstu" />
 			<property name="javax.persistence.jdbc.user" value="root" />

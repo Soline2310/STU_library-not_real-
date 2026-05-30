@@ -1,0 +1,32 @@
+package UI;
+
+import javax.swing.*;
+import java.awt.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+public class DocGiaPanel extends JPanel {
+	public DocGiaPanel() {
+		setLayout(new BorderLayout(0, 15));
+		setBorder(new EmptyBorder(20, 20, 20, 20));
+		JPanel pForm = new JPanel(new GridBagLayout());
+		add(pForm, BorderLayout.NORTH);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 15);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+
+		// Các ô điền thông tin của độc giả
+		UIHelper.addField(pForm, "Mã Đọc Giả:", new JTextField(), 0, 0, gbc);
+		UIHelper.addField(pForm, "Tên Đọc Giả:", new JTextField(), 0, 1, gbc);
+		UIHelper.addField(pForm, "Ngày Sinh:", new JTextField(), 0, 2, gbc);
+		UIHelper.addField(pForm, "SĐT:", new JTextField(), 2, 0, gbc);
+		UIHelper.addField(pForm, "Email:", new JTextField(), 2, 1, gbc);
+		UIHelper.addField(pForm, "Địa Chỉ:", new JTextField(), 2, 2, gbc);
+		UIHelper.addButtonsAndSearch(pForm, gbc, new JTextField());
+		// Bảng danh sách độc giả
+		JTable tbl = new JTable(new DefaultTableModel(new Object[][] {},
+				new String[] { "Mã ĐG", "Tên", "Ngày Sinh", "SĐT", "Email", "Địa Chỉ" }));
+		tbl.setRowHeight(25);
+		add(new JScrollPane(tbl), BorderLayout.CENTER);
+	}
+}

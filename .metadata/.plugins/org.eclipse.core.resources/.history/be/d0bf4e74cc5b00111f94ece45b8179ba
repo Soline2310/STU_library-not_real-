@@ -1,0 +1,93 @@
+package service;
+
+import entity.ThuThu;
+import javax.persistence.*;
+import java.util.List;
+
+public class ThuThuService {
+
+    /** Login: match TaiKhoan + MatKhau, return ThuThu or null */
+    public ThuThu dangNhap(String taiKhoan, String matKhau) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery(
+                    "SELECT t FROM ThuThu t WHERE t.taiKhoan = :tk AND t.matKhau = :mk",
+                    ThuThu.class)
+                    .setParameter("tk", taiKhoan)
+                    .setParameter("mk", matKhau)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<ThuThu> getAll() {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery("SELECT t FROM ThuThu t ORDER BY t.maThuThu", ThuThu.class)
+                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void add(ThuThu t) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.persist(t);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void update(ThuThu t) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.merge(t);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void delete(String maThuThu) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            ThuThu t = em.find(ThuThu.class, maThuThu);
+            if (t != null) em.remove(t);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /** Search by name or phone */
+    public List<ThuThu> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT t FROM ThuThu t WHERE t.tenThuThu LIKE :kw OR t.sDT LIKE :kw",
+                    ThuThu.class)
+                    .setParameter("kw", kw)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+}

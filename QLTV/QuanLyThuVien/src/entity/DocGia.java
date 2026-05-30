@@ -1,11 +1,7 @@
 package entity;
 
+import javax.persistence.*;
 import java.time.LocalDate;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "DOC_GIA")
@@ -22,7 +18,7 @@ public class DocGia {
     private LocalDate ngaySinh;
 
     @Column(name = "SDT", length = 15)
-    private String sdt;
+    private String sDT;
 
     @Column(name = "Email", length = 100)
     private String email;
@@ -33,28 +29,25 @@ public class DocGia {
     public DocGia() {}
 
     public DocGia(String maDocGia, String tenDocGia, LocalDate ngaySinh,
-                  String sdt, String email, String diaChi) {
+                  String sDT, String email, String diaChi) {
         this.maDocGia = maDocGia;
         this.tenDocGia = tenDocGia;
         this.ngaySinh = ngaySinh;
-        this.sdt = sdt;
+        this.sDT = sDT;
         this.email = email;
         this.diaChi = diaChi;
     }
 
-    public String getMaDocGia()         { return maDocGia; }
-    public void setMaDocGia(String v)   { this.maDocGia = v; }
-    public String getTenDocGia()        { return tenDocGia; }
-    public void setTenDocGia(String v)  { this.tenDocGia = v; }
-    public LocalDate getNgaySinh()      { return ngaySinh; }
-    public void setNgaySinh(LocalDate v){ this.ngaySinh = v; }
-    public String getSdt()              { return sdt; }
-    public void setSdt(String v)        { this.sdt = v; }
-    public String getEmail()            { return email; }
-    public void setEmail(String v)      { this.email = v; }
-    public String getDiaChi()           { return diaChi; }
-    public void setDiaChi(String v)     { this.diaChi = v; }
-
-    @Override
-    public String toString() { return maDocGia + " - " + tenDocGia; }
+    public String    getMaDocGia()           { return maDocGia; }
+    public void      setMaDocGia(String v)   { this.maDocGia = v; }
+    public String    getTenDocGia()          { return tenDocGia; }
+    public void      setTenDocGia(String v)  { this.tenDocGia = v; }
+    public LocalDate getNgaySinh()           { return ngaySinh; }
+    public void      setNgaySinh(LocalDate v){ this.ngaySinh = v; }
+    public String    getSDT()                { return sDT; }
+    public void      setSDT(String v)        { this.sDT = v; }
+    public String    getEmail()              { return email; }
+    public void      setEmail(String v)      { this.email = v; }
+    public String    getDiaChi()             { return diaChi; }
+    public void      setDiaChi(String v)     { this.diaChi = v; }
 }

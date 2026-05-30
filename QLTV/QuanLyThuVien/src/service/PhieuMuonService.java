@@ -1,81 +1,98 @@
 package service;
 
+import entity.PhieuMuon;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureQuery;
-
-import dao.JPAUtil;
-import entity.PhieuMuon;
-
 public class PhieuMuonService {
 
-    /** Get all phieu muon */
     public List<PhieuMuon> getAll() {
         EntityManager em = JPAUtil.getEM();
         try {
-            return em.createQuery("SELECT p FROM PhieuMuon p", PhieuMuon.class).getResultList();
-        } finally { em.close(); }
-    }
-
-    /**
-     * Lập phiếu mượn — calls stored procedure sp_LapPhieuMuon.
-     * The DB trigger (trg_MuonSach) automatically decreases SoLuong.
-     * The SP enforces max 3 books per reader.
-     */
-    public void lapPhieuMuon(String maPhieu, String maDocGia, String maSach,
-                              LocalDate ngayMuon, LocalDate hanTra) {
-        EntityManager em = JPAUtil.getEM();
-        try {
-            em.getTransaction().begin();
-            StoredProcedureQuery sp = em.createStoredProcedureQuery("sp_LapPhieuMuon");
-            sp.registerStoredProcedureParameter("p_MaPhieu",  String.class,    ParameterMode.IN);
-            sp.registerStoredProcedureParameter("p_MaDocGia", String.class,    ParameterMode.IN);
-            sp.registerStoredProcedureParameter("p_MaSach",   String.class,    ParameterMode.IN);
-            sp.registerStoredProcedureParameter("p_NgayMuon", java.sql.Date.class, ParameterMode.IN);
-            sp.registerStoredProcedureParameter("p_HanTra",   java.sql.Date.class, ParameterMode.IN);
-            sp.setParameter("p_MaPhieu",  maPhieu);
-            sp.setParameter("p_MaDocGia", maDocGia);
-            sp.setParameter("p_MaSach",   maSach);
-            sp.setParameter("p_NgayMuon", java.sql.Date.valueOf(ngayMuon));
-            sp.setParameter("p_HanTra",   java.sql.Date.valueOf(hanTra));
-            sp.execute();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;   // let the UI catch and show the DB error message
-        } finally { em.close(); }
-    }
-
-    /**
-     * Trả sách — calls stored procedure sp_TraSach.
-     * The DB trigger (trg_TraSach) automatically increases SoLuong.
-     */
-    public void traSach(String maPhieu) {
-        EntityManager em = JPAUtil.getEM();
-        try {
-            em.getTransaction().begin();
-            StoredProcedureQuery sp = em.createStoredProcedureQuery("sp_TraSach");
-            sp.registerStoredProcedureParameter("p_MaPhieu", String.class, ParameterMode.IN);
-            sp.setParameter("p_MaPhieu", maPhieu);
-            sp.execute();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        } finally { em.close(); }
-    }
-
-    /** Get phieu muon filtered by trang thai */
-    public List<PhieuMuon> getByTrangThai(String trangThai) {
-        EntityManager em = JPAUtil.getEM();
-        try {
             return em.createQuery(
-                "SELECT p FROM PhieuMuon p WHERE p.trangThai = :tt", PhieuMuon.class)
-                .setParameter("tt", trangThai)
-                .getResultList();
+                    "SELECT p FROM PhieuMuon p LEFT JOIN FETCH p.docGia LEFT JOIN FETCH p.sach ORDER BY p.maPhieu",
+                    PhieuMuon.class).getResultList();
         } finally { em.close(); }
+    }
+
+    public PhieuMuon findById(String maPhieu) {
+        EntityManager em = JPAUtil.getEM();
+        try { return em.find(PhieuMuon.class, maPhieu); }
+        finally { em.close(); }
+    }
+
+    /**
+     * Add a new borrow slip.
+     * Business rule: reader cannot hold >= 3 active books.
+     */
+    public void add(PhieuMuon p) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            Long active = em.createQuery(
+                    "SELECT COUNT(pm) FROM PhieuMuon pm WHERE pm.docGia.maDocGia = :id " +
+                    "AND pm.trangThai IN ('Đang mượn', 'Quá hạn')", Long.class)
+                    .setParameter("id", p.getDocGia().getMaDocGia())
+                    .getSingleResult();
+            if (active >= 3) {
+                em.getTransaction().rollback();
+                throw new IllegalStateException("Từ chối: Độc giả đang giữ 3 cuốn chưa trả!");
+            }
+            em.persist(p);
+            em.getTransaction().commit();
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            em.getTransaction().rollback(); throw e;
+        } finally { em.close(); }
+    }
+
+    public void update(PhieuMuon p) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.merge(p);
+            em.getTransaction().commit();
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+
+    public void delete(String maPhieu) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            PhieuMuon p = em.find(PhieuMuon.class, maPhieu);
+            if (p != null) em.remove(p);
+            em.getTransaction().commit();
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+
+    public List<PhieuMuon> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT p FROM PhieuMuon p LEFT JOIN FETCH p.docGia LEFT JOIN FETCH p.sach " +
+                    "WHERE p.maPhieu LIKE :kw OR p.docGia.maDocGia LIKE :kw " +
+                    "OR p.sach.maSach LIKE :kw OR p.trangThai LIKE :kw",
+                    PhieuMuon.class).setParameter("kw", kw).getResultList();
+        } finally { em.close(); }
+    }
+
+    /** Auto-mark overdue slips */
+    public void capNhatQuaHan() {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.createQuery(
+                    "UPDATE PhieuMuon p SET p.trangThai = 'Quá hạn' " +
+                    "WHERE p.trangThai = 'Đang mượn' AND p.hanTra < :today")
+                    .setParameter("today", LocalDate.now())
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
     }
 }

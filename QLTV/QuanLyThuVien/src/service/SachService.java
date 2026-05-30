@@ -1,79 +1,73 @@
 package service;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-
-import dao.JPAUtil;
 import entity.Sach;
+import javax.persistence.*;
+import java.util.List;
 
 public class SachService {
 
-    /** Get all books */
     public List<Sach> getAll() {
         EntityManager em = JPAUtil.getEM();
         try {
-            return em.createQuery("SELECT s FROM Sach s", Sach.class).getResultList();
+            return em.createQuery(
+                    "SELECT s FROM Sach s LEFT JOIN FETCH s.tacGia LEFT JOIN FETCH s.nhaXuatBan ORDER BY s.maSach",
+                    Sach.class).getResultList();
         } finally { em.close(); }
     }
 
-    /** Find by primary key */
-    public Sach findById(String maSach) {
-        EntityManager em = JPAUtil.getEM();
-        try {
-            return em.find(Sach.class, maSach);
-        } finally { em.close(); }
-    }
-
-    /** Search by name (case-insensitive, partial match) */
-    public List<Sach> search(String keyword) {
-        EntityManager em = JPAUtil.getEM();
-        try {
-            TypedQuery<Sach> q = em.createQuery(
-                "SELECT s FROM Sach s WHERE LOWER(s.tenSach) LIKE :kw", Sach.class);
-            q.setParameter("kw", "%" + keyword.toLowerCase() + "%");
-            return q.getResultList();
-        } finally { em.close(); }
-    }
-
-    /** Add new book */
-    public void add(Sach sach) {
+    public void add(Sach s) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.persist(sach);
+            em.persist(s);
             em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        } finally { em.close(); }
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
     }
 
-    /** Update existing book */
-    public void update(Sach sach) {
+    public void update(Sach s) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.merge(sach);
+            em.merge(s);
             em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        } finally { em.close(); }
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
     }
 
-    /** Delete by primary key */
     public void delete(String maSach) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            Sach sach = em.find(Sach.class, maSach);
-            if (sach != null) em.remove(sach);
+            Sach s = em.find(Sach.class, maSach);
+            if (s != null) em.remove(s);
             em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+
+    public List<Sach> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT s FROM Sach s LEFT JOIN FETCH s.tacGia LEFT JOIN FETCH s.nhaXuatBan " +
+                    "WHERE s.tenSach LIKE :kw OR s.theLoai LIKE :kw " +
+                    "OR s.tacGia.tenTacGia LIKE :kw OR s.nhaXuatBan.tenNXB LIKE :kw",
+                    Sach.class).setParameter("kw", kw).getResultList();
+        } finally { em.close(); }
+    }
+
+    /** Returns true if the book has any borrow slip with status Đang mượn or Quá hạn */
+    public boolean coPhieuMuonDangMuon(String maSach) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            Long count = em.createQuery(
+                    "SELECT COUNT(p) FROM PhieuMuon p WHERE p.sach.maSach = :ma " +
+                    "AND p.trangThai IN ('Đang mượn', 'Quá hạn')", Long.class)
+                    .setParameter("ma", maSach)
+                    .getSingleResult();
+            return count > 0;
         } finally { em.close(); }
     }
 }

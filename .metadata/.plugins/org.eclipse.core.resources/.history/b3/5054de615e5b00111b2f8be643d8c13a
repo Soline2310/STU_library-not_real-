@@ -1,0 +1,55 @@
+package service;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
+import dao.JPAUtil;
+import entity.PhieuNhap;
+
+public class PhieuNhapService {
+
+    public List<PhieuNhap> getAll() {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery("SELECT x FROM PhieuNhap x", PhieuNhap.class).getResultList();
+        } finally { em.close(); }
+    }
+
+    public PhieuNhap findById(String id) {
+        EntityManager em = JPAUtil.getEM();
+        try { return em.find(PhieuNhap.class, id); }
+        finally { em.close(); }
+    }
+
+    public void add(PhieuNhap obj) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.persist(obj);
+            em.getTransaction().commit();
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+
+    public void update(PhieuNhap obj) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.merge(obj);
+            em.getTransaction().commit();
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+
+    public void delete(String id) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            PhieuNhap obj = em.find(PhieuNhap.class, id);
+            if (obj != null) em.remove(obj);
+            em.getTransaction().commit();
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+}

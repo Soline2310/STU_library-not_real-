@@ -1,55 +1,69 @@
 package service;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
-import dao.JPAUtil;
 import entity.TacGia;
+import javax.persistence.*;
+import java.util.List;
 
 public class TacGiaService {
 
     public List<TacGia> getAll() {
         EntityManager em = JPAUtil.getEM();
         try {
-            return em.createQuery("SELECT x FROM TacGia x", TacGia.class).getResultList();
+            return em.createQuery("SELECT t FROM TacGia t ORDER BY t.maTacGia", TacGia.class)
+                     .getResultList();
         } finally { em.close(); }
     }
 
-    public TacGia findById(String id) {
-        EntityManager em = JPAUtil.getEM();
-        try { return em.find(TacGia.class, id); }
-        finally { em.close(); }
-    }
-
-    public void add(TacGia obj) {
+    public void add(TacGia t) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.persist(obj);
+            em.persist(t);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
     }
 
-    public void update(TacGia obj) {
+    public void update(TacGia t) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            em.merge(obj);
+            em.merge(t);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
     }
 
-    public void delete(String id) {
+    public void delete(String maTacGia) {
         EntityManager em = JPAUtil.getEM();
         try {
             em.getTransaction().begin();
-            TacGia obj = em.find(TacGia.class, id);
-            if (obj != null) em.remove(obj);
+            TacGia t = em.find(TacGia.class, maTacGia);
+            if (t != null) em.remove(t);
             em.getTransaction().commit();
         } catch (Exception e) { em.getTransaction().rollback(); throw e; }
         finally { em.close(); }
+    }
+
+    public List<TacGia> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT t FROM TacGia t WHERE t.tenTacGia LIKE :kw OR t.quocTich LIKE :kw",
+                    TacGia.class).setParameter("kw", kw).getResultList();
+        } finally { em.close(); }
+    }
+
+    /** Returns true if this author has any books linked in the system */
+    public boolean coSachLienKet(String maTacGia) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            Long count = em.createQuery(
+                    "SELECT COUNT(s) FROM Sach s WHERE s.tacGia.maTacGia = :ma", Long.class)
+                    .setParameter("ma", maTacGia)
+                    .getSingleResult();
+            return count > 0;
+        } finally { em.close(); }
     }
 }

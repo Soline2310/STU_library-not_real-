@@ -1,0 +1,80 @@
+package service;
+
+import entity.PhieuNhap;
+import javax.persistence.*;
+import java.util.List;
+
+public class PhieuNhapService {
+
+    public List<PhieuNhap> getAll() {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            return em.createQuery(
+                    "SELECT p FROM PhieuNhap p LEFT JOIN FETCH p.sach ORDER BY p.maPhieuNhap",
+                    PhieuNhap.class)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void add(PhieuNhap p) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.persist(p);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void update(PhieuNhap p) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            em.merge(p);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void delete(String maPhieuNhap) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            em.getTransaction().begin();
+            PhieuNhap p = em.find(PhieuNhap.class, maPhieuNhap);
+            if (p != null) em.remove(p);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /** Search by slip ID, book ID or supplier */
+    public List<PhieuNhap> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT p FROM PhieuNhap p LEFT JOIN FETCH p.sach " +
+                    "WHERE p.maPhieuNhap LIKE :kw OR p.sach.maSach LIKE :kw " +
+                    "OR p.nhaCungCap LIKE :kw OR p.tinhTrang LIKE :kw",
+                    PhieuNhap.class)
+                    .setParameter("kw", kw)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+}

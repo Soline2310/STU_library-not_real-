@@ -1,38 +1,33 @@
 package service;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-
-import dao.JPAUtil;
 import entity.ThuThu;
+import javax.persistence.*;
+import java.util.List;
 
 public class ThuThuService {
 
-    /**
-     * Login check — returns the ThuThu if credentials match, null otherwise.
-     * Use this in DangNhap.kiemTraDangNhap() to populate Auth static fields.
-     */
     public ThuThu dangNhap(String taiKhoan, String matKhau) {
         EntityManager em = JPAUtil.getEM();
         try {
-            TypedQuery<ThuThu> q = em.createQuery(
-                "SELECT t FROM ThuThu t WHERE t.taiKhoan = :tk AND t.matKhau = :mk",
-                ThuThu.class);
-            q.setParameter("tk", taiKhoan);
-            q.setParameter("mk", matKhau);
-            return q.getSingleResult();
-        } catch (NoResultException e) {
-            return null;   // wrong credentials
-        } finally { em.close(); }
+            return em.createQuery(
+                    "SELECT t FROM ThuThu t WHERE t.taiKhoan = :tk AND t.matKhau = :mk", ThuThu.class)
+                    .setParameter("tk", taiKhoan).setParameter("mk", matKhau)
+                    .getSingleResult();
+        } catch (NoResultException e) { return null; }
+        finally { em.close(); }
+    }
+
+    public ThuThu findById(String maThuThu) {
+        EntityManager em = JPAUtil.getEM();
+        try { return em.find(ThuThu.class, maThuThu); }
+        finally { em.close(); }
     }
 
     public List<ThuThu> getAll() {
         EntityManager em = JPAUtil.getEM();
         try {
-            return em.createQuery("SELECT t FROM ThuThu t", ThuThu.class).getResultList();
+            return em.createQuery("SELECT t FROM ThuThu t ORDER BY t.maThuThu", ThuThu.class)
+                     .getResultList();
         } finally { em.close(); }
     }
 
@@ -42,10 +37,8 @@ public class ThuThuService {
             em.getTransaction().begin();
             em.persist(t);
             em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        } finally { em.close(); }
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
     }
 
     public void update(ThuThu t) {
@@ -54,10 +47,8 @@ public class ThuThuService {
             em.getTransaction().begin();
             em.merge(t);
             em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        } finally { em.close(); }
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
     }
 
     public void delete(String maThuThu) {
@@ -67,9 +58,17 @@ public class ThuThuService {
             ThuThu t = em.find(ThuThu.class, maThuThu);
             if (t != null) em.remove(t);
             em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
+        } catch (Exception e) { em.getTransaction().rollback(); throw e; }
+        finally { em.close(); }
+    }
+
+    public List<ThuThu> search(String keyword) {
+        EntityManager em = JPAUtil.getEM();
+        try {
+            String kw = "%" + keyword.trim() + "%";
+            return em.createQuery(
+                    "SELECT t FROM ThuThu t WHERE t.tenThuThu LIKE :kw OR t.sDT LIKE :kw",
+                    ThuThu.class).setParameter("kw", kw).getResultList();
         } finally { em.close(); }
     }
 }
